@@ -49,10 +49,76 @@ class PessoaController {
   static async apagaPessoa(req, res) {
     try {
       const { id } = req.params;
-      const pessoa = await database.pessoas.destroy({
+      await database.pessoas.destroy({
         where: { id: Number(id) },
       });
       return res.status(200).json({ mensagem: `ID ${id} apagado.` });
+    } catch (error) {
+      return res.status(500).json(error.message);
+    }
+  }
+
+  static async pegaUmaMatricula(req, res) {
+    try {
+      const { estudanteId, matriculaId } = req.params;
+      const matricula = await database.matriculas.findOne({
+        where: { id: Number(matriculaId), estudante_id: Number(estudanteId) },
+      });
+      return res.status(200).json(matricula);
+    } catch (error) {
+      return res.status(500).json(error.message);
+    }
+  }
+
+  static async pegaMatriculas(req, res) {
+    try {
+      const { estudanteId } = req.params;
+      const matriculas = await database.matriculas.findAll({
+        where: { estudante_id: Number(estudanteId) },
+      });
+      return res.status(200).json(matriculas);
+    } catch (error) {
+      return res.status(500).json(error.message);
+    }
+  }
+
+  static async criaMatricula(req, res) {
+    try {
+      const { estudanteId } = req.params;
+      const novaMatricula = { ...req.body, estudante_id: Number(estudanteId) };
+
+      const novaMatriculaCriada = await database.matriculas.create(
+        novaMatricula
+      );
+      return res.status(200).json(novaMatriculaCriada);
+    } catch (error) {
+      return res.status(500).json(error.message);
+    }
+  }
+
+  static async atualizaMatricula(req, res) {
+    try {
+      const { estudanteId, matriculaId } = req.params;
+      const matriculaInfos = req.body;
+      await database.matriculas.update(matriculaInfos, {
+        where: { id: Number(matriculaId), estudante_id: Number(estudanteId) },
+      });
+      const matriculaAtualizada = await database.matriculas.findOne({
+        where: { id: Number(matriculaId), estudante_id: Number(estudanteId) },
+      });
+      return res.status(200).json(matriculaAtualizada);
+    } catch (error) {
+      return res.status(500).json(error.message);
+    }
+  }
+
+  static async apagaMatricula(req, res) {
+    try {
+      const { matriculaId } = req.params;
+      await database.matriculas.destroy({
+        where: { id: Number(matriculaId) },
+      });
+      return res.status(200).json({ mensagem: `ID ${matriculaId} apagado.` });
     } catch (error) {
       return res.status(500).json(error.message);
     }
